@@ -24,11 +24,40 @@ export default function RootLayout({ children }) {
           <Toaster richColors />
 
             {/* Footer */}
-            <footer className="bg-blue-50 py-12">
-            <div className="container mx-auto px-4 text-center text-gray-600">
-              <p>© 2025 FinMentor</p>
-            </div>
-          </footer>
+            <footer className="bg-blue-50 text-black py-8">
+  <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between text-center md:text-left">
+    {/* Logo and Copyright */}
+    <div className="mb-4 md:mb-0">
+      <h2 className="text-2xl font-semibold">FinMentor</h2>
+      <p className="text-sm opacity-80">© 2025 FinMentor. All Rights Reserved.</p>
+    </div>
+
+    {/* Navigation Links */}
+    <div className="flex space-x-6 text-sm">
+      <a href="#" className="hover:text-black transition">About</a>
+      <a href="#" className="hover:text-black transition">Services</a>
+      <a href="#" className="hover:text-black transition">Contact</a>
+      <a href="#" className="hover:text-black transition">Privacy Policy</a>
+    </div>
+
+    {/* Social Media Icons */}
+    <div className="flex space-x-4 mt-4 md:mt-0">
+      <a href="#" className="hover:text-black transition">
+        <i className="fab fa-facebook-f"></i>
+      </a>
+      <a href="#" className="hover:text-black transition">
+        <i className="fab fa-twitter"></i>
+      </a>
+      <a href="#" className="hover:text-black transition">
+        <i className="fab fa-linkedin-in"></i>
+      </a>
+      <a href="#" className="hover:text-black transition">
+        <i className="fab fa-instagram"></i>
+      </a>
+    </div>
+  </div>
+</footer>
+
         </body>
       </html>
     </ClerkProvider>

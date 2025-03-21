@@ -1,71 +1,90 @@
 "use client";
 
-import Link from "next/link"; // Correct import
-import React, { useEffect, useRef } from "react"; // Import useEffect here
+import Link from "next/link";
+import React, { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { Banknote, BarChart3, ShieldCheck } from "lucide-react";
 
 const HeroSection = () => {
-  const imageRef = useRef();
-  
+  const imageRef = useRef(null);
+
   useEffect(() => {
     const imageElement = imageRef.current;
 
     const handleScroll = () => {
       const scrollPosition = window.scrollY;
-      const scrollThreshold = 100;
-
-      if (scrollPosition > scrollThreshold) {
-        imageElement.classList.add("scrolled");
-      }else{
-        imageElement.classList.remove("scrolled");
+      if (scrollPosition > 100) {
+        imageElement?.classList.add("scrolled");
+      } else {
+        imageElement?.classList.remove("scrolled");
       }
     };
 
     window.addEventListener("scroll", handleScroll);
-
-
-    return () => {
-        window.removeEventListener("scroll", handleScroll);
-    }
-
-    // Cleanup the event listener when component unmounts
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []); // Empty dependency array to only run once on mount
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <div className="pb-20 px-4">
+    <section className="relative bg-gradient-to-b from-gray-900 to-gray-800 text-white py-20 px-4">
       <div className="container mx-auto text-center">
-        <h1 className="text-5xl md:text-8xl lg:text-[105px] pb-6 gradient-title">
-          Manage Your Expenses
-          <br /> Intelligently with AI-powered Insights
+        {/* Header Section */}
+        <h1 className="text-4xl md:text-6xl font-bold leading-tight">
+          Take Control of Your Finances  
+          <br /> with Smart Expense Tracking
         </h1>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-          FinMentor - Harness the power of AI to track, analyze, and optimize your
-          spending. Get smart recommendations, detect patterns, and make informed
-          financial decisions effortlessly!
+        <p className="text-lg text-gray-300 max-w-2xl mx-auto mt-4">
+          A simple and powerful tool to help university students manage their expenses, track spending, and plan for the future.
         </p>
-        <div className="flex justify-center ">
+
+        {/* CTA Buttons */}
+        <div className="flex justify-center mt-6 space-x-4">
           <Link href="/dashboard">
-            <Button size="lg" className="px-8">Get Started</Button>
+            <Button size="lg" className="bg-blue-600 text-white px-8 font-semibold shadow-md hover:bg-blue-500">
+              Get Started
+            </Button>
+          </Link>
+          <Link href="/learn-more">
+            <Button size="lg" variant="outline" className="border-white text-white px-8 hover:bg-white/10">
+              Learn More
+            </Button>
           </Link>
         </div>
-        <div className="hero-image-wrapper">
-          <div ref={imageRef} className="hero-image">
-            <Image 
+
+        {/* Hero Image */}
+        <div className="mt-12 relative">
+          <div ref={imageRef} className="hero-image transform transition duration-500 hover:scale-105">
+            <Image
               src="/banner.png"
-              alt="Dashboard Preview"
+              alt="University Budgeting Dashboard"
               width={1280}
               height={780}
-              className="rounded-lg shadow-2xl border mx-auto" // Fixed typo "boarder" to "border"
+              className="rounded-lg shadow-xl mx-auto border border-gray-700"
               priority
             />
           </div>
         </div>
+
+        {/* Features Section */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
+          <div className="flex flex-col items-center text-center p-6 bg-gray-700/40 rounded-lg">
+            <Banknote size={40} className="text-blue-400" />
+            <h3 className="text-xl font-semibold mt-4">Smart Budgeting</h3>
+            <p className="text-gray-300 mt-2">Set monthly spending limits and track your expenses in real time.</p>
+          </div>
+          <div className="flex flex-col items-center text-center p-6 bg-gray-700/40 rounded-lg">
+            <BarChart3 size={40} className="text-green-400" />
+            <h3 className="text-xl font-semibold mt-4">AI-Powered Insights</h3>
+            <p className="text-gray-300 mt-2">Get personalized recommendations based on your spending patterns.</p>
+          </div>
+          <div className="flex flex-col items-center text-center p-6 bg-gray-700/40 rounded-lg">
+            <ShieldCheck size={40} className="text-yellow-400" />
+            <h3 className="text-xl font-semibold mt-4">Secure & Private</h3>
+            <p className="text-gray-300 mt-2">Your financial data is encrypted and securely stored.</p>
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
   );
 };
 

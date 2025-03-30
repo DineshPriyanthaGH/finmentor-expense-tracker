@@ -33,7 +33,7 @@ const HeroSection = () => {
   Take Control of Your Student Finances  
   <br /> with Smart Expense Tracking
 </h1>
-<p className="text-lg text-gray-300 max-w-2xl mx-auto mt-4">
+<p className="text-lg text-bold text-gray-300 max-w-2xl mx-auto mt-4">
   A simple and powerful tool designed to help Sri Lankan university students manage their daily expenses, track spending, and save for the future.
 </p>
 

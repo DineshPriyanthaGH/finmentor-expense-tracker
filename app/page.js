@@ -118,7 +118,7 @@ export default function Home() {
                           key={star}
                           size={20}
                           className={`${
-                            review.rating >= star ? "text-yellow-500" : "text-gray-400"
+                            review.rating >= star ? "text-yellow-500" : "text-gray-600"
                           }`}
                         />
                       ))}

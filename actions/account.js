@@ -3,6 +3,7 @@
 import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
+import { checkUser } from "@/lib/checkUser";
 
 const serializeDecimal = (obj) => {
   const serialized = { ...obj };
@@ -19,11 +20,10 @@ export async function getAccountWithTransactions(accountId) {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
 
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-  });
+  // Check if user exists, create if not
+  const user = await checkUser();
 
-  if (!user) throw new Error("User not found");
+  if (!user) throw new Error("Failed to create or find user");
 
   const account = await db.account.findUnique({
     where: {
@@ -53,11 +53,10 @@ export async function bulkDeleteTransactions(transactionIds) {
     const { userId } = await auth();
     if (!userId) throw new Error("Unauthorized");
 
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
-    });
+    // Check if user exists, create if not
+    const user = await checkUser();
 
-    if (!user) throw new Error("User not found");
+    if (!user) throw new Error("Failed to create or find user");
 
     // Get transactions to calculate balance changes
     const transactions = await db.transaction.findMany({
@@ -116,12 +115,11 @@ export async function updateDefaultAccount(accountId) {
     const { userId } = await auth();
     if (!userId) throw new Error("Unauthorized");
 
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
-    });
+    // Check if user exists, create if not
+    const user = await checkUser();
 
     if (!user) {
-      throw new Error("User not found");
+      throw new Error("Failed to create or find user");
     }
 
     // First, unset any existing default account

@@ -5,6 +5,7 @@ import { db } from "@/lib/prisma";
 import { request } from "@arcjet/next";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
+import { checkUser } from "@/lib/checkUser";
 
 const serializeTransaction = (obj) => {
   const serialized = { ...obj };
@@ -21,12 +22,11 @@ export async function getUserAccounts() {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
 
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-  });
+  // Check if user exists, create if not
+  const user = await checkUser();
 
   if (!user) {
-    throw new Error("User not found");
+    throw new Error("Failed to create or find user");
   }
 
   try {
@@ -82,12 +82,10 @@ export async function createAccount(data) {
       throw new Error("Request blocked");
     }
 
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
-    });
+    const user = await checkUser();
 
     if (!user) {
-      throw new Error("User not found");
+      throw new Error("Failed to create or find user");
     }
 
     // Convert balance to float before saving
@@ -138,12 +136,11 @@ export async function getDashboardData() {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
 
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-  });
+  // Check if user exists, create if not
+  const user = await checkUser();
 
   if (!user) {
-    throw new Error("User not found");
+    throw new Error("Failed to create or find user");
   }
 
   // Get all user transactions

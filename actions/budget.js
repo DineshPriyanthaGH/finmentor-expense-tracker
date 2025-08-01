@@ -3,18 +3,18 @@
 import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
+import { checkUser } from "@/lib/checkUser";
 
 export async function getCurrentBudget(accountId) {
   try {
     const { userId } = await auth();
     if (!userId) throw new Error("Unauthorized");
 
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
-    });
+    // Check if user exists, create if not
+    const user = await checkUser();
 
     if (!user) {
-      throw new Error("User not found");
+      throw new Error("Failed to create or find user");
     }
 
     const budget = await db.budget.findFirst({
@@ -68,11 +68,9 @@ export async function updateBudget(amount) {
     const { userId } = await auth();
     if (!userId) throw new Error("Unauthorized");
 
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
-    });
+    const user = await checkUser();
 
-    if (!user) throw new Error("User not found");
+    if (!user) throw new Error("Failed to create or find user");
 
     // Update or create budget
     const budget = await db.budget.upsert({

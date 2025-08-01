@@ -3,22 +3,23 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 model User {
-  id            String    @id @default(uuid())
-  clerkUserId   String    @unique // clerk user id
-  email         String    @unique
+  id            String            @id @default(uuid())
+  clerkUserId   String            @unique // clerk user id
+  email         String            @unique
   name          String?
   imageUrl      String?
   transactions  Transaction[]
   accounts      Account[]
   budgets       Budget[]
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  notifications Notification[]
+  emailPreference EmailPreference?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
 
   @@map("users")
 }
@@ -26,7 +27,7 @@ model User {
 model Account {
   id           String        @id @default(uuid())
   name         String
-  type         AccountType
+  type         String        // "CURRENT" or "SAVINGS"
   balance      Decimal       @default(0) // will ask inital balance while creating an account
   isDefault    Boolean       @default(false)
   userId       String
@@ -40,24 +41,24 @@ model Account {
 }
 
 model Transaction {
-  id                String            @id @default(uuid())
-  type             TransactionType
-  amount           Decimal
-  description      String?
-  date             DateTime
-  category         String           
-  receiptUrl       String?
-  isRecurring      Boolean           @default(false)
-  recurringInterval RecurringInterval? // Only used if isRecurring is true
-  nextRecurringDate DateTime?         // Next date for recurring transaction
-  lastProcessed    DateTime?         // Last time this recurring transaction was processed
-  status           TransactionStatus  @default(COMPLETED)
-  userId           String
-  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  accountId        String
-  account          Account           @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
+  id                String    @id @default(uuid())
+  type              String    // "INCOME" or "EXPENSE"
+  amount            Decimal
+  description       String?
+  date              DateTime
+  category          String           
+  receiptUrl        String?
+  isRecurring       Boolean   @default(false)
+  recurringInterval String?   // "DAILY", "WEEKLY", "MONTHLY", "YEARLY" - Only used if isRecurring is true
+  nextRecurringDate DateTime? // Next date for recurring transaction
+  lastProcessed     DateTime? // Last time this recurring transaction was processed
+  status            String    @default("COMPLETED") // "PENDING", "COMPLETED", "FAILED"
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountId         String
+  account           Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
   @@index([userId])
   @@index([accountId])
@@ -78,25 +79,64 @@ model Budget {
   @@map("budgets")
 }
 
-enum TransactionType {
-  INCOME
-  EXPENSE
+model Notification {
+  id          String    @id @default(uuid())
+  type        String    // "BUDGET_ALERT", "MONTHLY_REPORT", "TRANSACTION_REMINDER", "GOAL_ACHIEVED"
+  title       String
+  message     String
+  isRead      Boolean   @default(false)
+  isEmailed   Boolean   @default(false)
+  priority    String    @default("NORMAL") // "LOW", "NORMAL", "HIGH", "CRITICAL"
+  actionUrl   String?   // Optional URL for action button
+  metadata    String?   // JSON string for additional data
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("notifications")
 }
 
-enum AccountType {
-  CURRENT
-  SAVINGS
+model EmailPreference {
+  id                    String    @id @default(uuid())
+  userId                String    @unique
+  budgetAlerts          Boolean   @default(true)
+  monthlyReports        Boolean   @default(true)
+  transactionReminders  Boolean   @default(false)
+  goalAchievements      Boolean   @default(true)
+  weeklyDigest          Boolean   @default(false)
+  emailFrequency        String    @default("IMMEDIATE") // "IMMEDIATE", "DAILY", "WEEKLY"
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("email_preferences")
 }
 
-enum TransactionStatus {
-  PENDING
-  COMPLETED
-  FAILED
-}
+// Note: SQLite doesn't support enums, so we use String with validation in code
+// enum TransactionType {
+//   INCOME
+//   EXPENSE
+// }
 
-enum RecurringInterval {
-  DAILY
-  WEEKLY
-  MONTHLY
-  YEARLY
-}
+// enum AccountType {
+//   CURRENT
+//   SAVINGS
+// }
+
+// enum TransactionStatus {
+//   PENDING
+//   COMPLETED
+//   FAILED
+// }
+
+// enum RecurringInterval {
+//   DAILY
+//   WEEKLY
+//   MONTHLY
+//   YEARLY
+// }

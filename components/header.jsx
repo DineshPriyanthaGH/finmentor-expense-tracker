@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { LayoutDashboard, PenBox, Menu } from "lucide-react";
 import { checkUser } from "@/lib/checkUser";
+import { NotificationDropdown } from "@/components/notification-dropdown";
 
 const Header = async() => {
   await checkUser();
@@ -41,6 +42,8 @@ const Header = async() => {
                 <span className="hidden md:inline">Add Transaction</span>
               </Button>
             </Link>
+
+            <NotificationDropdown />
           </SignedIn>
 
           <SignedOut>

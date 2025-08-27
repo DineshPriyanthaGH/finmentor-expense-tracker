@@ -42,48 +42,56 @@ export function SimplePDFReport({ accounts, transactions }) {
       doc.text(`Total Accounts: ${accounts?.length || 0}`, 20, 80);
       doc.text(`Total Balance: LKR ${totalBalance.toLocaleString()}`, 20, 95);
       
-      // Accounts Table
+      let yPosition = 110;
+      
+      // Accounts List
       if (accounts && accounts.length > 0) {
-        const accountsData = accounts.map(account => [
-          account.name || 'Unnamed Account',
-          account.type || 'Unknown',
-          `LKR ${parseFloat(account.balance || 0).toLocaleString()}`,
-          account.isDefault ? 'Yes' : 'No'
-        ]);
+        doc.setFontSize(14);
+        doc.setTextColor('#385b93');
+        doc.text('Accounts:', 20, yPosition);
+        yPosition += 15;
         
-        (doc as any).autoTable({
-          head: [['Account Name', 'Type', 'Balance', 'Default']],
-          body: accountsData,
-          startY: 110,
-          theme: 'grid',
-          headStyles: { fillColor: [56, 91, 147] },
-          styles: { fontSize: 10 }
+        doc.setFontSize(10);
+        doc.setTextColor('#000000');
+        
+        accounts.forEach((account, index) => {
+          if (yPosition > 270) { // Add new page if needed
+            doc.addPage();
+            yPosition = 20;
+          }
+          
+          const accountText = `${index + 1}. ${account.name || 'Unnamed'} (${account.type || 'Unknown'}) - LKR ${parseFloat(account.balance || 0).toLocaleString()}`;
+          doc.text(accountText, 20, yPosition);
+          yPosition += 10;
         });
+        
+        yPosition += 10;
       }
       
       // Recent Transactions
       if (transactions && transactions.length > 0) {
-        const lastY = (doc as any).lastAutoTable ? (doc as any).lastAutoTable.finalY + 30 : 150;
+        if (yPosition > 200) { // Add new page if needed
+          doc.addPage();
+          yPosition = 20;
+        }
         
-        doc.setFontSize(16);
+        doc.setFontSize(14);
         doc.setTextColor('#385b93');
-        doc.text('Recent Transactions', 20, lastY);
+        doc.text('Recent Transactions:', 20, yPosition);
+        yPosition += 15;
         
-        const transactionData = transactions.slice(0, 10).map(transaction => [
-          new Date(transaction.date).toLocaleDateString(),
-          transaction.description || 'N/A',
-          transaction.type || 'Unknown',
-          transaction.category || 'Uncategorized',
-          `LKR ${parseFloat(transaction.amount || 0).toLocaleString()}`
-        ]);
+        doc.setFontSize(10);
+        doc.setTextColor('#000000');
         
-        (doc as any).autoTable({
-          head: [['Date', 'Description', 'Type', 'Category', 'Amount']],
-          body: transactionData,
-          startY: lastY + 10,
-          theme: 'grid',
-          headStyles: { fillColor: [56, 91, 147] },
-          styles: { fontSize: 9 }
+        transactions.slice(0, 10).forEach((transaction, index) => {
+          if (yPosition > 270) { // Add new page if needed
+            doc.addPage();
+            yPosition = 20;
+          }
+          
+          const transactionText = `${index + 1}. ${new Date(transaction.date).toLocaleDateString()} - ${transaction.description || 'N/A'} (${transaction.type || 'Unknown'}) - LKR ${parseFloat(transaction.amount || 0).toLocaleString()}`;
+          doc.text(transactionText, 20, yPosition);
+          yPosition += 10;
         });
       }
       
@@ -91,7 +99,7 @@ export function SimplePDFReport({ accounts, transactions }) {
       const pageCount = doc.internal.getNumberOfPages();
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
-        doc.setFontSize(10);
+        doc.setFontSize(8);
         doc.setTextColor('#666666');
         doc.text(`Page ${i} of ${pageCount}`, doc.internal.pageSize.width - 40, doc.internal.pageSize.height - 10);
       }

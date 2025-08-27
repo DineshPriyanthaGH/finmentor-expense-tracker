@@ -1,6 +1,5 @@
 import { getUserAccounts, getDashboardData } from "@/actions/dashboard";
 import { SimplePDFReport } from "@/components/simple-pdf-report";
-import { EmailNotificationSetup } from "@/components/email-notification-setup";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -120,12 +119,11 @@ export default async function ReportsPage() {
       </div>
 
       {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="flex justify-center">
         {/* PDF Report Download Section */}
-        <SimplePDFReport accounts={accounts} transactions={transactions} />
-
-        {/* Email Notification Setup */}
-        <EmailNotificationSetup />
+        <div className="w-full max-w-2xl">
+          <SimplePDFReport accounts={accounts} transactions={transactions} />
+        </div>
       </div>
 
       {/* Additional Features Section */}

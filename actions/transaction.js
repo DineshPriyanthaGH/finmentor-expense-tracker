@@ -283,6 +283,43 @@ export async function scanReceipt(file) {
   }
 }
 
+// Generate AI Description
+export async function generateAIDescription(amount, category, type) {
+  try {
+    if (!process.env.GEMINI_API_KEY) {
+      throw new Error("Gemini API key not configured");
+    }
+
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    const prompt = `
+      Generate a realistic and specific transaction description for:
+      - Amount: $${amount}
+      - Category: ${category}
+      - Type: ${type}
+      
+      Provide a concise, realistic description that someone might use for this transaction.
+      Examples:
+      - For groceries: "Weekly grocery shopping at Walmart"
+      - For gas: "Gas station fill-up"
+      - For entertainment: "Movie tickets for two"
+      - For salary: "Monthly salary deposit"
+      
+      Only respond with the description text, no additional formatting or explanation.
+      Keep it under 50 characters.
+    `;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const description = response.text().trim();
+
+    return { success: true, description };
+  } catch (error) {
+    console.error("Error generating AI description:", error);
+    return { success: false, error: "Failed to generate description" };
+  }
+}
+
 // Helper function to calculate next recurring date
 function calculateNextRecurringDate(startDate, interval) {
   const date = new Date(startDate);

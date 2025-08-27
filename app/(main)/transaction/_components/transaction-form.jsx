@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CalendarIcon, Loader2 } from "lucide-react";
+import { CalendarIcon, Loader2, Sparkles } from "lucide-react";
 import { format } from "date-fns";
 import { useRouter, useSearchParams } from "next/navigation";
 import useFetch from "@/hooks/use-fetch";
@@ -27,7 +27,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { CreateAccountDrawer } from "@/components/create-account-drawer";
 import { cn } from "@/lib/utils";
-import { createTransaction, updateTransaction } from "@/actions/transaction";
+import { createTransaction, updateTransaction, generateAIDescription } from "@/actions/transaction";
 import { transactionSchema } from "@/app/lib/schema";
 import { ReceiptScanner } from "./recipt-scanner";
 
@@ -40,6 +40,7 @@ export function AddTransactionForm({
   const router = useRouter();
   const searchParams = useSearchParams();
   const editId = searchParams.get("edit");
+  const [aiLoading, setAiLoading] = useState(false);
 
   const {
     register,
@@ -94,17 +95,45 @@ export function AddTransactionForm({
     }
   };
 
-  const handleScanComplete = (scannedData) => {
-    if (scannedData) {
-      setValue("amount", scannedData.amount.toString());
+    const handleScanComplete = (scannedData) => {
+    if (scannedData.amount) {
+      setValue("amount", scannedData.amount);
+    }
+    if (scannedData.date) {
       setValue("date", new Date(scannedData.date));
-      if (scannedData.description) {
-        setValue("description", scannedData.description);
+    }
+    if (scannedData.description) {
+      setValue("description", scannedData.description);
+    }
+    if (scannedData.category) {
+      setValue("category", scannedData.category);
+    }
+    toast.success("Receipt scanned successfully");
+  };
+
+  const generateDescription = async () => {
+    const amount = watch("amount");
+    const category = watch("category");
+    const type = watch("type");
+
+    if (!amount || !category || !type) {
+      toast.error("Please fill in amount, category, and type first");
+      return;
+    }
+
+    setAiLoading(true);
+    try {
+      const result = await generateAIDescription(amount, category, type);
+      if (result.success) {
+        setValue("description", result.description);
+        toast.success("AI description generated!");
+      } else {
+        toast.error("Failed to generate description");
       }
-      if (scannedData.category) {
-        setValue("category", scannedData.category);
-      }
-      toast.success("Receipt scanned successfully");
+    } catch (error) {
+      toast.error("Error generating description");
+    } finally {
+      setAiLoading(false);
     }
   };
 
@@ -257,7 +286,24 @@ export function AddTransactionForm({
 
       {/* Description */}
       <div className="space-y-2">
-        <label className="text-sm font-medium">Description</label>
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-medium">Description</label>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={generateDescription}
+            disabled={aiLoading}
+            className="text-xs bg-[#385b93] text-white border-0 hover:bg-blue-700"
+          >
+            {aiLoading ? (
+              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+            ) : (
+              <Sparkles className="h-3 w-3 mr-1" />
+            )}
+            AI Generate
+          </Button>
+        </div>
         <Input placeholder="Enter description" {...register("description")} />
         {errors.description && (
           <p className="text-sm text-red-500">{errors.description.message}</p>

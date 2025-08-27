@@ -85,9 +85,9 @@ export default async function DashboardPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gray-50">
       {/* Header Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-2xl mb-8 shadow-xl">
+      <div className="bg-[#385b93] text-white p-6 rounded-2xl mb-8 shadow-xl">
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
           <div>
             <h1 className="text-3xl font-bold mb-2">Welcome Back! 👋</h1>
@@ -118,13 +118,13 @@ export default async function DashboardPage() {
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 hover:shadow-lg transition-all duration-300">
+        <Card className="bg-green-50 border-green-200 hover:shadow-lg transition-all duration-300">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-green-600 text-sm font-medium">Total Balance</p>
                 <p className="text-2xl font-bold text-green-700">
-                  ${dashboardStats.totalBalance.toLocaleString()}
+                  LKR {dashboardStats.totalBalance.toLocaleString()}
                 </p>
                 <p className="text-green-600 text-xs mt-1 flex items-center">
                   <ArrowUpRight className="h-3 w-3 mr-1" />
@@ -138,13 +138,13 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 hover:shadow-lg transition-all duration-300">
+        <Card className="bg-blue-50 border-blue-200 hover:shadow-lg transition-all duration-300">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-blue-600 text-sm font-medium">Monthly Income</p>
                 <p className="text-2xl font-bold text-blue-700">
-                  ${dashboardStats.monthlyIncome.toLocaleString()}
+                  LKR {dashboardStats.monthlyIncome.toLocaleString()}
                 </p>
                 <p className="text-blue-600 text-xs mt-1 flex items-center">
                   <ArrowUpRight className="h-3 w-3 mr-1" />
@@ -158,7 +158,7 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 hover:shadow-lg transition-all duration-300">
+        <Card className="bg-purple-50 border-purple-200 hover:shadow-lg transition-all duration-300">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -178,7 +178,7 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 hover:shadow-lg transition-all duration-300">
+        <Card className="bg-orange-50 border-orange-200 hover:shadow-lg transition-all duration-300">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -220,7 +220,7 @@ export default async function DashboardPage() {
               {/* Quick Actions */}
               <div className="grid grid-cols-2 gap-4 mt-6">
                 <Link href="/transaction/create">
-                  <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg">
+                  <Button className="w-full bg-[#385b93] hover:bg-blue-700 text-white shadow-lg">
                     <Plus className="h-4 w-4 mr-2" />
                     Add Transaction
                   </Button>
@@ -268,7 +268,7 @@ export default async function DashboardPage() {
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <CreateAccountDrawer>
-              <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer border-dashed border-2 border-blue-300 bg-gradient-to-br from-blue-50 to-blue-100">
+              <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer border-dashed border-2 border-blue-300 bg-blue-50">
                 <CardContent className="flex flex-col items-center justify-center text-blue-600 h-full pt-5">
                   <div className="bg-blue-500/20 p-4 rounded-full mb-3">
                     <Plus className="h-8 w-8" />

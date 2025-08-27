@@ -1,5 +1,5 @@
 import { getUserAccounts, getDashboardData } from "@/actions/dashboard";
-import { ReportDownload } from "@/components/report-download";
+import { SimplePDFReport } from "@/components/simple-pdf-report";
 import { EmailNotificationSetup } from "@/components/email-notification-setup";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,10 +14,21 @@ import {
 } from "lucide-react";
 
 export default async function ReportsPage() {
-  const [accounts, transactions] = await Promise.all([
+  const [accountsData, transactionsData] = await Promise.all([
     getUserAccounts(),
     getDashboardData(),
   ]);
+
+  // Serialize the data to avoid Decimal issues
+  const accounts = accountsData?.map(account => ({
+    ...account,
+    balance: typeof account.balance === 'object' ? parseFloat(account.balance.toString()) : account.balance
+  })) || [];
+  
+  const transactions = transactionsData?.map(transaction => ({
+    ...transaction,
+    amount: typeof transaction.amount === 'object' ? parseFloat(transaction.amount.toString()) : transaction.amount
+  })) || [];
 
   const currentMonth = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
   
@@ -28,9 +39,9 @@ export default async function ReportsPage() {
   const monthlyIncome = transactions?.filter(t => t.type === 'INCOME').reduce((sum, t) => sum + t.amount, 0) || 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gray-50">
       {/* Header Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-2xl mb-8 shadow-xl">
+      <div className="bg-[#385b93] text-white p-6 rounded-2xl mb-8 shadow-xl">
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
           <div>
             <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
@@ -51,27 +62,27 @@ export default async function ReportsPage() {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+        <Card className="bg-gray-50 border-gray-200">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-green-600 text-sm font-medium">Total Balance</p>
-                <p className="text-2xl font-bold text-green-700">
-                  ${totalBalance.toLocaleString()}
+                <p className="text-[#385b93] text-sm font-medium">Total Balance</p>
+                <p className="text-2xl font-bold text-[#385b93]">
+                  LKR {totalBalance.toLocaleString()}
                 </p>
               </div>
-              <DollarSign className="h-8 w-8 text-green-600" />
+              <DollarSign className="h-8 w-8 text-[#385b93]" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+        <Card className="bg-blue-50 border-blue-200">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-blue-600 text-sm font-medium">Monthly Income</p>
                 <p className="text-2xl font-bold text-blue-700">
-                  ${monthlyIncome.toLocaleString()}
+                  LKR {monthlyIncome.toLocaleString()}
                 </p>
               </div>
               <TrendingUp className="h-8 w-8 text-blue-600" />
@@ -79,30 +90,30 @@ export default async function ReportsPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+        <Card className="bg-gray-50 border-gray-200">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-purple-600 text-sm font-medium">Monthly Expenses</p>
-                <p className="text-2xl font-bold text-purple-700">
-                  ${monthlyExpenses.toLocaleString()}
+                <p className="text-red-600 text-sm font-medium">Monthly Expenses</p>
+                <p className="text-2xl font-bold text-red-700">
+                  LKR {monthlyExpenses.toLocaleString()}
                 </p>
               </div>
-              <Activity className="h-8 w-8 text-purple-600" />
+              <Activity className="h-8 w-8 text-red-600" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
+        <Card className="bg-gray-50 border-gray-200">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-orange-600 text-sm font-medium">Transactions</p>
-                <p className="text-2xl font-bold text-orange-700">
+                <p className="text-[#385b93] text-sm font-medium">Transactions</p>
+                <p className="text-2xl font-bold text-[#385b93]">
                   {monthlyTransactions}
                 </p>
               </div>
-              <BarChart3 className="h-8 w-8 text-orange-600" />
+              <BarChart3 className="h-8 w-8 text-[#385b93]" />
             </div>
           </CardContent>
         </Card>
@@ -110,8 +121,8 @@ export default async function ReportsPage() {
 
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Report Download Section */}
-        <ReportDownload accounts={accounts} transactions={transactions} />
+        {/* PDF Report Download Section */}
+        <SimplePDFReport accounts={accounts} transactions={transactions} />
 
         {/* Email Notification Setup */}
         <EmailNotificationSetup />
@@ -125,32 +136,32 @@ export default async function ReportsPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="p-4 border border-blue-200 rounded-lg bg-blue-50">
+              <div className="p-4 border border-[#385b93] rounded-lg bg-blue-50">
                 <div className="flex items-center gap-3 mb-3">
-                  <Calendar className="h-6 w-6 text-blue-600" />
-                  <h3 className="font-semibold text-blue-800">Monthly Reports</h3>
+                  <Calendar className="h-6 w-6 text-[#385b93]" />
+                  <h3 className="font-semibold text-[#385b93]">Monthly Reports</h3>
                 </div>
-                <p className="text-blue-700 text-sm">
+                <p className="text-[#385b93] text-sm">
                   Automatically generated reports sent to your email every month with detailed financial insights.
                 </p>
               </div>
 
-              <div className="p-4 border border-green-200 rounded-lg bg-green-50">
+              <div className="p-4 border border-[#385b93] rounded-lg bg-gray-50">
                 <div className="flex items-center gap-3 mb-3">
-                  <Mail className="h-6 w-6 text-green-600" />
-                  <h3 className="font-semibold text-green-800">Smart Alerts</h3>
+                  <Mail className="h-6 w-6 text-[#385b93]" />
+                  <h3 className="font-semibold text-[#385b93]">Smart Alerts</h3>
                 </div>
-                <p className="text-green-700 text-sm">
+                <p className="text-[#385b93] text-sm">
                   AI-powered notifications that alert you about unusual spending patterns and budget limits.
                 </p>
               </div>
 
-              <div className="p-4 border border-purple-200 rounded-lg bg-purple-50">
+              <div className="p-4 border border-[#385b93] rounded-lg bg-blue-50">
                 <div className="flex items-center gap-3 mb-3">
-                  <BarChart3 className="h-6 w-6 text-purple-600" />
-                  <h3 className="font-semibold text-purple-800">Analytics</h3>
+                  <BarChart3 className="h-6 w-6 text-[#385b93]" />
+                  <h3 className="font-semibold text-[#385b93]">Analytics</h3>
                 </div>
-                <p className="text-purple-700 text-sm">
+                <p className="text-[#385b93] text-sm">
                   Advanced analytics and insights to help you make better financial decisions and achieve your goals.
                 </p>
               </div>

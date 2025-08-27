@@ -23,7 +23,7 @@ const NavLink = ({ href, icon: Icon, children }) => {
       className={cn(
         "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200",
         isActive
-          ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg"
+          ? "bg-[#385b93] text-white shadow-lg"
           : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
       )}
     >
@@ -35,7 +35,7 @@ const NavLink = ({ href, icon: Icon, children }) => {
 
 const MainLayout = ({ children }) => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gray-50">
       <div className="flex">
         {/* Sidebar Navigation */}
         <div className="w-64 bg-white/80 backdrop-blur-sm border-r border-gray-200 min-h-screen p-6 hidden lg:block">

@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { getUserNotifications, markNotificationAsRead } from "@/actions/notifications";
 import { 
   Bell, 
   X, 
@@ -132,63 +133,36 @@ export const AdvancedNotificationCenter = () => {
   const [filter, setFilter] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
 
-  // Mock data - replace with actual API calls
+  // Fetch real notifications from database
   useEffect(() => {
-    const mockNotifications = [
-      {
-        id: "1",
-        type: "BUDGET_ALERT",
-        title: "Budget Alert: 80% Used",
-        message: "You've used 80% of your monthly budget. Consider reviewing your expenses.",
-        isRead: false,
-        isEmailed: true,
-        priority: "HIGH",
-        createdAt: new Date().toISOString(),
-      },
-      {
-        id: "2",
-        type: "MONTHLY_REPORT",
-        title: "Monthly Report Available",
-        message: "Your December financial report is ready for download.",
-        isRead: false,
-        isEmailed: false,
-        priority: "NORMAL",
-        createdAt: new Date(Date.now() - 86400000).toISOString(),
-      },
-      {
-        id: "3",
-        type: "GOAL_ACHIEVED",
-        title: "Savings Goal Achieved!",
-        message: "Congratulations! You've reached your $5,000 savings goal.",
-        isRead: true,
-        isEmailed: true,
-        priority: "NORMAL",
-        createdAt: new Date(Date.now() - 172800000).toISOString(),
-      },
-      {
-        id: "4",
-        type: "TRANSACTION_REMINDER",
-        title: "Recurring Payment Due",
-        message: "Your Netflix subscription payment is due tomorrow.",
-        isRead: false,
-        isEmailed: false,
-        priority: "LOW",
-        createdAt: new Date(Date.now() - 3600000).toISOString(),
-      },
-    ];
+    const fetchNotifications = async () => {
+      try {
+        setIsLoading(true);
+        const result = await getUserNotifications();
+        setNotifications(result || []);
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+        // Fallback to empty array
+        setNotifications([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    setTimeout(() => {
-      setNotifications(mockNotifications);
-      setIsLoading(false);
-    }, 1000);
+    fetchNotifications();
   }, []);
 
-  const handleMarkAsRead = (id) => {
-    setNotifications(prev =>
-      prev.map(notification =>
-        notification.id === id ? { ...notification, isRead: true } : notification
-      )
-    );
+  const handleMarkAsRead = async (id) => {
+    try {
+      await markNotificationAsRead(id);
+      setNotifications(prev =>
+        prev.map(notification =>
+          notification.id === id ? { ...notification, isRead: true } : notification
+        )
+      );
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+    }
   };
 
   const handleDelete = (id) => {

@@ -1,3 +1,5 @@
+"use server";
+
 import { checkUser } from "@/lib/checkUser";
 import { db } from "@/lib/prisma";
 
@@ -6,12 +8,25 @@ export async function setupEmailNotifications(email, preferences) {
   try {
     const user = await checkUser();
     
-    // Save notification preferences to database
-    await db.user.update({
-      where: { clerkUserId: user.id },
-      data: {
-        emailNotifications: true,
-        notificationPreferences: preferences
+    // Save notification preferences to database using EmailPreference model
+    await db.emailPreference.upsert({
+      where: { userId: user.id },
+      update: {
+        budgetAlerts: preferences.budgetAlerts || true,
+        monthlyReports: preferences.monthlyReport || true,
+        transactionReminders: preferences.transactionNotifications || false,
+        goalAchievements: preferences.goalAchievements || true,
+        weeklyDigest: preferences.weeklyDigest || false,
+        emailFrequency: "IMMEDIATE"
+      },
+      create: {
+        userId: user.id,
+        budgetAlerts: preferences.budgetAlerts || true,
+        monthlyReports: preferences.monthlyReport || true,
+        transactionReminders: preferences.transactionNotifications || false,
+        goalAchievements: preferences.goalAchievements || true,
+        weeklyDigest: preferences.weeklyDigest || false,
+        emailFrequency: "IMMEDIATE"
       }
     });
 
@@ -146,6 +161,52 @@ export async function createNotification(userId, type, title, message) {
   } catch (error) {
     console.error("Error creating notification:", error);
     return { error: "Failed to create notification" };
+  }
+}
+
+// Create sample notifications for new users
+export async function createSampleNotifications() {
+  try {
+    const user = await checkUser();
+    
+    const sampleNotifications = [
+      {
+        type: "BUDGET_ALERT",
+        title: "Welcome to FinMentor!",
+        message: "Start by setting up your budget and tracking your expenses.",
+        priority: "NORMAL"
+      },
+      {
+        type: "MONTHLY_REPORT", 
+        title: "Monthly Report Ready",
+        message: "Your financial insights are ready. Check your dashboard for details.",
+        priority: "NORMAL"
+      },
+      {
+        type: "GOAL_ACHIEVED",
+        title: "Account Setup Complete!",
+        message: "Great job! You've successfully set up your FinMentor account.",
+        priority: "HIGH"
+      }
+    ];
+
+    for (const notif of sampleNotifications) {
+      await db.notification.create({
+        data: {
+          userId: user.id,
+          type: notif.type,
+          title: notif.title,
+          message: notif.message,
+          priority: notif.priority,
+          isRead: false
+        }
+      });
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error creating sample notifications:", error);
+    return { error: "Failed to create sample notifications" };
   }
 }
 

@@ -37,8 +37,8 @@ import "swiper/css/effect-fade";
 // Sample data for the enhanced landing page
 const heroImages = [
   "/banner.png",
-  "/hero-1.jpeg",
-  "/hero-2.jpg",
+  // "/hero-1.jpeg",
+  // "/hero-2.jpg",
 ];
 
 const features = [
@@ -81,10 +81,10 @@ const features = [
 ];
 
 const stats = [
-  { value: "50K+", label: "Active Users", icon: <Users className="h-6 w-6" /> },
-  { value: "$2B+", label: "Transactions Tracked", icon: <TrendingUp className="h-6 w-6" /> },
-  { value: "99.9%", label: "Uptime", icon: <Zap className="h-6 w-6" /> },
-  { value: "4.9/5", label: "User Rating", icon: <Star className="h-6 w-6" /> }
+  { value: "-", label: "Active Users", icon: <Users className="h-6 w-6" /> },
+  { value: "-", label: "Transactions Tracked", icon: <TrendingUp className="h-6 w-6" /> },
+  { value: "-", label: "Uptime", icon: <Zap className="h-6 w-6" /> },
+  { value: "-", label: "User Rating", icon: <Star className="h-6 w-6" /> }
 ];
 
 const initialReviews = [
@@ -92,35 +92,35 @@ const initialReviews = [
     name: "Amira Perera",
     rating: 5,
     comment: "FinMentor has completely transformed how I manage my university expenses. The AI-powered insights helped me save 30% on my monthly budget!",
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b5ad?w=100&h=100&fit=crop&crop=face",
+    avatar: "/banner.png", // Using local image instead of external URL
     university: "University of Colombo"
   },
   {
     name: "Kasun Silva",
     rating: 5,
     comment: "As a student with limited income, this app helps me track every rupee. The receipt scanner is a game-changer!",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
+    avatar: "/banner.png", // Using local image instead of external URL
     university: "University of Peradeniya"
   },
   {
     name: "Nimali Fernando",
     rating: 4,
     comment: "Love the intuitive interface and the detailed analytics. Perfect for university students like me!",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
+    avatar: "/banner.png", // Using local image instead of external URL
     university: "SLIIT"
   },
   {
     name: "Rajitha Bandara",
     rating: 5,
     comment: "The budgeting features are incredible. I can finally plan my expenses properly and save for important things.",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
+    avatar: "/banner.png", // Using local image instead of external URL
     university: "University of Moratuwa"
   },
   {
     name: "Sachini Kumari",
     rating: 5,
     comment: "FinMentor made financial planning so simple. The AI suggestions are spot-on!",
-    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=face",
+    avatar: "/banner.png", // Using local image instead of external URL
     university: "University of Kelaniya"
   }
 ];
@@ -129,18 +129,34 @@ const LandingPage = () => {
   const [reviews, setReviews] = useState(initialReviews);
   const [newReview, setNewReview] = useState({ name: "", comment: "", rating: 0, university: "" });
   const [hoverRating, setHoverRating] = useState(0);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleSubmitReview = () => {
     if (newReview.name && newReview.comment && newReview.rating > 0 && newReview.university) {
       const review = {
         ...newReview,
-        avatar: `https://images.unsplash.com/photo-unique-id?w=100&h=100&fit=crop&crop=face` // Replaced Date.now() with a static unique identifier
+        avatar: "/banner.png" // Using local image instead of dynamic URL
       };
       setReviews([review, ...reviews]);
       setNewReview({ name: "", comment: "", rating: 0, university: "" });
       setHoverRating(0);
     }
   };
+
+  // Don't render Swiper on server-side to avoid hydration mismatch
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-white">
+        <div className="flex items-center justify-center h-screen">
+          <div className="text-2xl font-semibold text-gray-600">Loading...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -163,9 +179,7 @@ const LandingPage = () => {
               transition={{ duration: 0.8 }}
               className="text-center lg:text-left"
             >
-              <Badge className="mb-6 bg-blue-600/20 text-blue-200 border-blue-400">
-                🎓 Built for Sri Lankan Students
-              </Badge>
+             
               
               <h1 className="text-4xl lg:text-6xl font-bold leading-tight mb-6">
                 Take Control of Your{" "}
@@ -224,34 +238,50 @@ const LandingPage = () => {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="relative"
             >
-              <Swiper
-                modules={[Navigation, Pagination, Autoplay, EffectFade]}
-                effect="fade"
-                spaceBetween={30}
-                centeredSlides={true}
-                autoplay={{
-                  delay: 3000,
-                  disableOnInteraction: false,
-                }}
-                pagination={{
-                  clickable: true,
-                }}
-                className="rounded-2xl shadow-2xl overflow-hidden"
-              >
-                {heroImages.map((image, index) => (
-                  <SwiperSlide key={index}>
-                    <div className="relative h-96 lg:h-[500px]">
-                      <Image
-                        src={image}
-                        alt={`FinMentor Feature ${index + 1}`}
-                        fill
-                        className="object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-                    </div>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
+              {heroImages.length > 1 ? (
+                <Swiper
+                  modules={[Navigation, Pagination, Autoplay, EffectFade]}
+                  effect="fade"
+                  spaceBetween={30}
+                  centeredSlides={true}
+                  autoplay={{
+                    delay: 3000,
+                    disableOnInteraction: false,
+                  }}
+                  pagination={{
+                    clickable: true,
+                  }}
+                  className="rounded-2xl shadow-2xl overflow-hidden"
+                >
+                  {heroImages.map((image, index) => (
+                    <SwiperSlide key={index}>
+                      <div className="relative h-96 lg:h-[500px]">
+                        <Image
+                          src={image}
+                          alt={`FinMentor Feature ${index + 1}`}
+                          fill
+                          className="object-cover"
+                          priority={index === 0}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                      </div>
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+              ) : (
+                <div className="rounded-2xl shadow-2xl overflow-hidden">
+                  <div className="relative h-96 lg:h-[500px]">
+                    <Image
+                      src={heroImages[0]}
+                      alt="FinMentor Feature"
+                      fill
+                      className="object-cover"
+                      priority
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                  </div>
+                </div>
+              )}
             </motion.div>
           </div>
         </div>
@@ -268,7 +298,7 @@ const LandingPage = () => {
             className="text-center mb-16"
           >
             <Badge className="mb-4 bg-blue-100 text-blue-800">
-              ✨ Powerful Features
+               Features
             </Badge>
             <h2 className="text-4xl font-bold text-gray-900 mb-6">
               Everything You Need to Master Your Finances
@@ -314,9 +344,7 @@ const LandingPage = () => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <Badge className="mb-4 bg-yellow-100 text-yellow-800">
-              ⭐ Student Reviews
-            </Badge>
+          
             <h2 className="text-4xl font-bold text-gray-900 mb-6">
               What Sri Lankan Students Say
             </h2>
@@ -327,62 +355,64 @@ const LandingPage = () => {
 
           {/* Auto-sliding Reviews */}
           <div className="mb-16">
-            <Swiper
-              modules={[Autoplay, Navigation]}
-              spaceBetween={30}
-              slidesPerView={1}
-              breakpoints={{
-                640: { slidesPerView: 2 },
-                1024: { slidesPerView: 3 }
-              }}
-              autoplay={{
-                delay: 4000,
-                disableOnInteraction: false,
-              }}
-              className="pb-12"
-            >
-              {reviews.map((review, index) => (
-                <SwiperSlide key={index}>
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5 }}
-                    viewport={{ once: true }}
-                  >
-                    <Card className="h-full hover:shadow-xl transition-shadow duration-300">
-                      <CardContent className="p-8">
-                        <div className="flex items-center mb-4">
-                          <Image
-                            src={review.avatar}
-                            alt={review.name}
-                            width={60}
-                            height={60}
-                            className="rounded-full mr-4"
-                          />
-                          <div>
-                            <h4 className="font-bold text-gray-900">{review.name}</h4>
-                            <p className="text-sm text-blue-600">{review.university}</p>
-                          </div>
-                        </div>
-                        
-                        <div className="flex mb-4">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              className={`h-5 w-5 ${
-                                i < review.rating ? "text-yellow-400 fill-current" : "text-gray-300"
-                              }`}
+            {reviews.length > 0 && (
+              <Swiper
+                modules={[Autoplay, Navigation]}
+                spaceBetween={30}
+                slidesPerView={1}
+                breakpoints={{
+                  640: { slidesPerView: Math.min(2, reviews.length) },
+                  1024: { slidesPerView: Math.min(3, reviews.length) }
+                }}
+                autoplay={{
+                  delay: 4000,
+                  disableOnInteraction: false,
+                }}
+                className="pb-12"
+              >
+                {reviews.map((review, index) => (
+                  <SwiperSlide key={index}>
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.5 }}
+                      viewport={{ once: true }}
+                    >
+                      <Card className="h-full hover:shadow-xl transition-shadow duration-300">
+                        <CardContent className="p-8">
+                          <div className="flex items-center mb-4">
+                            <Image
+                              src={review.avatar}
+                              alt={review.name}
+                              width={60}
+                              height={60}
+                              className="rounded-full mr-4"
                             />
-                          ))}
-                        </div>
-                        
-                        <p className="text-gray-600 italic leading-relaxed">"{review.comment}"</p>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                </SwiperSlide>
-              ))}
-            </Swiper>
+                            <div>
+                              <h4 className="font-bold text-gray-900">{review.name}</h4>
+                              <p className="text-sm text-blue-600">{review.university}</p>
+                            </div>
+                          </div>
+                          
+                          <div className="flex mb-4">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`h-5 w-5 ${
+                                  i < review.rating ? "text-yellow-400 fill-current" : "text-gray-300"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          
+                          <p className="text-gray-600 italic leading-relaxed">"{review.comment}"</p>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            )}
           </div>
 
           {/* Add Review Form */}
